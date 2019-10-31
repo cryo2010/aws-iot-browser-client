@@ -21,7 +21,7 @@ export default class AwsIotBrowserClient {
     unsubscribe(topics: string[]): Promise<unknown>;
     onConnect(callback: () => void): void;
     onReconnect(callback: () => void): void;
-    onMessage(callback: (topic: string, payload: Object) => void): void;
+    onMessage(callback: (topic: string, payload: string) => void): void;
     publish(topic: string, payload: Object): Promise<unknown>;
 }
 export {};

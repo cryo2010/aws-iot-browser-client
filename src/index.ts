@@ -158,13 +158,11 @@ export default class AwsIotBrowserClient {
     device.on('reconnect', callback);
   }
 
-  public onMessage(callback: (topic: string, payload: Object) => void) {
+  public onMessage(callback: (topic: string, payload: string) => void) {
     const { logger } = getConfig(this);
     const device = deviceMap.get(this);
-    device.on('message', (topic: string, payload: Object) => {
-      logger.debug(
-        `recieved message (topic=${topic}, payload=${JSON.stringify(payload)})`
-      );
+    device.on('message', (topic: string, payload: string) => {
+      logger.debug(`recieved message (topic=${topic}, payload=${payload})`);
       callback(topic, payload);
     });
   }
