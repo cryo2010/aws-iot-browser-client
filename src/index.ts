@@ -1,5 +1,6 @@
-import AWS, { AWSError } from 'aws-sdk';
-import awsIot from 'aws-iot-device-sdk';
+import CognitoIdentity from "aws-sdk/clients/cognitoidentity";
+import AWS, { AWSError } from "aws-sdk/global";
+import awsIot from "aws-iot-device-sdk";
 
 interface Logger {
   debug: (...args: any[]) => void;
@@ -28,13 +29,13 @@ const nullLogger = {
   debug: () => {},
   info: () => {},
   warn: () => {},
-  error: () => {},
+  error: () => {}
 };
 
 function getConfig(client: AwsIotBrowserClient): FullConfig {
   const config = configMap.get(client);
   if (!config) {
-    throw new Error('config does not exist');
+    throw new Error("config does not exist");
   }
   return config;
 }
@@ -42,7 +43,7 @@ function getConfig(client: AwsIotBrowserClient): FullConfig {
 function configureAws(region: string, cognitoIdentityPoolId: string) {
   AWS.config.region = region;
   AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: cognitoIdentityPoolId,
+    IdentityPoolId: cognitoIdentityPoolId
   });
 }
 
@@ -55,11 +56,11 @@ export default class AwsIotBrowserClient {
       region: config.region,
       host: config.iotEndpoint,
       clientId: config.clientId,
-      protocol: 'wss',
+      protocol: "wss",
       maximumReconnectTimeMs: 5000,
-      accessKeyId: '',
-      secretKey: '',
-      sessionToken: '',
+      accessKeyId: "",
+      secretKey: "",
+      sessionToken: ""
     });
     deviceMap.set(this, device);
     if (config.autoConnect || config.autoConnect === undefined) {
@@ -71,11 +72,11 @@ export default class AwsIotBrowserClient {
     const { logger } = getConfig(this);
     const device = deviceMap.get(this);
     return new Promise(async (resolve, reject) => {
-      const identity = new AWS.CognitoIdentity();
+      const identity = new CognitoIdentity();
       const creds = AWS.config.credentials as any;
       creds.get(function(err: AWSError) {
         if (err) {
-          logger.error('failed to retrieve AWS Cognito identity');
+          logger.error("failed to retrieve AWS Cognito identity");
           logger.error(err);
           return reject(err);
         }
@@ -99,16 +100,16 @@ export default class AwsIotBrowserClient {
   public async connect() {
     const { logger } = getConfig(this);
     await this.authenticate();
-    logger.info('connected');
+    logger.info("connected");
   }
 
   public disconnect() {
     const { logger } = getConfig(this);
-    logger.info('disconnecting');
+    logger.info("disconnecting");
     return new Promise((resolve, reject) => {
       const device = deviceMap.get(this);
       device.end(() => {
-        logger.info('disconnected');
+        logger.info("disconnected");
         return resolve();
       });
     });
@@ -117,7 +118,7 @@ export default class AwsIotBrowserClient {
   public subscribe(topics: string[]) {
     const { logger } = getConfig(this);
     logger.info(
-      `subscribing to ${topics.length} topics (${topics.join(', ')})`
+      `subscribing to ${topics.length} topics (${topics.join(", ")})`
     );
     return new Promise((resolve, reject) => {
       const device = deviceMap.get(this);
@@ -134,7 +135,7 @@ export default class AwsIotBrowserClient {
   public unsubscribe(topics: string[]) {
     const { logger } = getConfig(this);
     logger.info(
-      `unsubscribing from ${topics.length} topics (${topics.join(', ')})`
+      `unsubscribing from ${topics.length} topics (${topics.join(", ")})`
     );
     return new Promise((resolve, reject) => {
       const device = deviceMap.get(this);
@@ -150,18 +151,18 @@ export default class AwsIotBrowserClient {
 
   public onConnect(callback: () => void) {
     const device = deviceMap.get(this);
-    device.on('connect', callback);
+    device.on("connect", callback);
   }
 
   public onReconnect(callback: () => void) {
     const device = deviceMap.get(this);
-    device.on('reconnect', callback);
+    device.on("reconnect", callback);
   }
 
   public onMessage(callback: (topic: string, payload: string) => void) {
     const { logger } = getConfig(this);
     const device = deviceMap.get(this);
-    device.on('message', (topic: string, payload: string) => {
+    device.on("message", (topic: string, payload: string) => {
       logger.debug(`recieved message (topic=${topic}, payload=${payload})`);
       callback(topic, payload);
     });
