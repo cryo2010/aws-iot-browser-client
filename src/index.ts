@@ -1,5 +1,5 @@
-import CognitoIdentity from "aws-sdk/clients/cognitoidentity";
 import AWS, { AWSError } from "aws-sdk/global";
+import CognitoIdentity from "aws-sdk/clients/cognitoidentity";
 import awsIot from "aws-iot-device-sdk";
 
 interface Logger {
